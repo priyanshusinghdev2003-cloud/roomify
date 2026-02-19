@@ -8,8 +8,8 @@ import Upload from "~/components/Upload";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Roomify" },
+    { name: "description", content: "Welcome to Roomify!" },
   ];
 }
 
@@ -20,6 +20,22 @@ export default function Home() {
 
   const handleUploadComplete = async (base64Image: string) => {
     try {
+      if (isCreatingProjectRef.current) return false;
+      isCreatingProjectRef.current = true;
+
+      const newId = Date.now().toString();
+      const name = `Residence ${newId}`;
+
+      const newItem = {
+        id: newId,
+        name,
+        sourceImage: base64Image,
+        renderedImage: undefined,
+        timestamp: Date.now(),
+      };
+
+      navigate(`/visualizer/${newId}`);
+
       return true;
     } finally {
       isCreatingProjectRef.current = false;
