@@ -5,6 +5,7 @@ import Button from "~/components/ui/Button";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import Upload from "~/components/Upload";
+import { createProject, getProjects } from "lib/puter.action";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -34,7 +35,25 @@ export default function Home() {
         timestamp: Date.now(),
       };
 
-      navigate(`/visualizer/${newId}`);
+      const saved = await createProject({
+        item: newItem,
+        visibility: "private",
+      });
+
+      if (!saved) {
+        console.error("Failed to create project");
+        return false;
+      }
+
+      setProjects((prev) => [saved, ...prev]);
+
+      navigate(`/visualizer/${newId}`, {
+        state: {
+          initialImage: saved.sourceImage,
+          initialRendered: saved.renderedImage || null,
+          name,
+        },
+      });
 
       return true;
     } finally {
@@ -43,7 +62,11 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const fetchProjects = async () => {};
+    const fetchProjects = async () => {
+      const items = await getProjects();
+
+      setProjects(items);
+    };
 
     fetchProjects();
   }, []);
